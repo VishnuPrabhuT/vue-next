@@ -1,63 +1,13 @@
-version: 2
-
-defaults: &defaults
-  docker:
-    - image: vuejs/ci
-
-step_restore_cache: &restore_cache
-  restore_cache:
-    keys:
-    - v1-dependencies-{{ checksum "yarn.lock" }}-1
-    - v1-dependencies-
-
-step_install_deps: &install_deps
-  run:
-    name: Install Dependencies
-    command: yarn --frozen-lockfile
-
-step_save_cache: &save_cache
-  save_cache:
-    paths:
-      - node_modules
-      - packages/compiler-core/node_modules
-      - packages/compiler-sfc/node_modules
-      - packages/vue/node_modules
-      - ~/.cache/yarn
-    key: v1-dependencies-{{ checksum "yarn.lock" }}-1
-
-jobs:
-  test:
-    <<: *defaults
-    steps:
-      - checkout
-      - *restore_cache
-      - *install_deps
-      - *save_cache
-      - run: yarn ls-lint
-      - run: yarn test --ci
-
-  test-dts:
-    <<: *defaults
-    steps:
-      - checkout
-      - *restore_cache
-      - *install_deps
-      - *save_cache
-      - run: yarn test-dts
-
-  check-size:
-    <<: *defaults
-    steps:
-      - checkout
-      - *restore_cache
-      - *install_deps
-      - *save_cache
-      - run: yarn size
-
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+# Use a package of configuration called an orb.
+orbs:
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+# Orchestrate or schedule a set of jobs
 workflows:
-  version: 2
-  ci:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
     jobs:
-      - test
-      - test-dts
-      - check-size
+      - welcome/run
